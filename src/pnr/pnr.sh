@@ -1,0 +1,1 @@
+nextpnr-ice40 --hx1k --package vq100 --json ./build/artifacts/syn/synth.json --pcf ./src/constraints/GoBoard.pcf  --asc ./build/artifacts/pnr/top.asc --freq 25

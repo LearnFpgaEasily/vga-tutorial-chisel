@@ -1,0 +1,1 @@
+icepack ./build/artifacts/pnr/top.asc ./build/artifacts/bitstream/bitstream.bin

@@ -1,0 +1,1 @@
+iceprog ./build/artifacts/bitstream/bitstream.bin

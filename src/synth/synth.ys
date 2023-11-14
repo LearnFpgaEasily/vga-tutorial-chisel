@@ -1,0 +1,4 @@
+read -sv build/artifacts/netlist/Top.v
+hierarchy -top Top
+proc; opt; techmap; opt
+synth_ice40 -top Top -json build/artifacts/syn/synth.json
