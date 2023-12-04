@@ -21,22 +21,6 @@ class VGABundle extends Bundle{
     val vsync = Output(Bool())
 }
 
-
-class Counter(max_count: Int) extends Module{
-    val io = IO(new Bundle{
-        val enable = Input(Bool())
-        val count  = Output(UInt(log2Ceil(max_count).W))
-        val trig   = Output(Bool()) 
-    })
-
-    val reg_count = RegInit(0.U(log2Ceil(max_count).W))
-    when(io.enable){
-        reg_count := Mux(reg_count===max_count.U, 0.U, reg_count+1.U)
-    }
-    io.count := reg_count
-    io.trig  := reg_count===max_count.U
-}
-
 class SyncPulse(config: VgaConfig) extends Module{
     val io = IO(new Bundle{
         val hsync       = Output(Bool())
@@ -46,30 +30,25 @@ class SyncPulse(config: VgaConfig) extends Module{
         val active_zone = Output(Bool())
     })
 
-    val col_counter = Module(new Counter(config.TOTAL_COL))
-    val row_counter = Module(new Counter(config.TOTAL_ROW))
-
+    val (col_counter, overflow) = Counter(true.B, config.TOTAL_COL)
+    val (row_counter, _) = Counter(overflow, config.TOTAL_ROW)
     val hsync       = Wire(Bool())
     val vsync       = Wire(Bool())
     val hsync_porch = Wire(Bool())
     val vsync_porch = Wire(Bool())
 
-    // nested for loop to traverse the image
-    col_counter.io.enable := true.B
-    row_counter.io.enable := col_counter.io.trig
-
     // hsync
-    hsync  := col_counter.io.count <= config.ACTIVE_COL.U
+    hsync  := col_counter <= config.ACTIVE_COL.U
     // vsync
-    vsync  := row_counter.io.count <= config.ACTIVE_ROW.U
+    vsync  := row_counter <= config.ACTIVE_ROW.U
 
     // hsync with porch
-    hsync_porch := col_counter.io.count <= config.ACTIVE_COL.U + config.FPH.U ||
-                   col_counter.io.count >= config.TOTAL_COL.U  - config.BPH.U
+    hsync_porch := col_counter <= config.ACTIVE_COL.U + config.FPH.U ||
+                   col_counter >= config.TOTAL_COL.U  - config.BPH.U
 
     // vsync with porch
-    vsync_porch := row_counter.io.count <= config.ACTIVE_ROW.U + config.FPV.U ||
-                   row_counter.io.count >= config.TOTAL_ROW.U  - config.BPV.U
+    vsync_porch := row_counter <= config.ACTIVE_ROW.U + config.FPV.U ||
+                   row_counter >= config.TOTAL_ROW.U  - config.BPV.U
 
     //outputs
     io.hsync                := hsync

@@ -6,14 +6,14 @@ from PIL import Image
 import numpy as np
 
 # Constant
-TOTAL_COL  = 800
-TOTAL_ROW  = 525
-ACTIVE_COL = 640
-ACTIVE_ROW = 480
-FPH        = 16
-FPV        = 10
-BPH        = 48
-BPV        = 33
+#TOTAL_COL  = 800
+#TOTAL_ROW  = 525
+#ACTIVE_COL = 640
+#ACTIVE_ROW = 480
+#FPH        = 16
+#FPV        = 10
+#BPH        = 48
+#BPV        = 33
 
 @cocotb.test()
 async def dump_frame(dut):
@@ -44,7 +44,7 @@ async def dump_frame(dut):
 
         col+=1
         line.append(pixel)
-        if col==801:
+        if col==800:
             rgb_array.append(line)
             line = []
             col=0
